@@ -244,9 +244,10 @@ def read_sound_files(
     ans = []
     for f in filenames:
         wave, sample_rate = torchaudio.load(f)
-        assert (
-            sample_rate == expected_sample_rate
-        ), f"expected sample rate: {expected_sample_rate}. Given: {sample_rate}"
+        if sample_rate != expected_sample_rate:
+            wave = torchaudio.functional.resample(
+                wave, orig_freq=sample_rate, new_freq=expected_sample_rate
+            )
         # We use only the first channel
         ans.append(wave[0].contiguous())
     return ans
